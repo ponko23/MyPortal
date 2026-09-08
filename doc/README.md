@@ -58,7 +58,7 @@ MyPortal プロジェクト全体に関するドキュメント。以下の内�
 - 将来的な拡張方針
 
 #### `src/`
-MyPortal 本体のソース。トップページとして各アプリへのリンクなどを提供するアプリケーション。個別アプリとは異なり、MyPortal そのものを構成するアプリケーション。
+MyPortal 本体のソース。トップページとして各アプリへのリンクなどを提供するアプリケーション。個別アプリとは異なり、MyPortal そのものを構成するコンテンツの一部です。
 
 #### `common/`
 複数のアプリから利用する共通基盤。
@@ -83,37 +83,170 @@ apps/
 
 各アプリは必要な共通基盤の機能だけを参照することを基本とします。
 
-## 共通基盤の設計方針
-
-### 機能分離
-共通基盤は機能単位で分離し、必要な機能だけを依存関係に追加できる構成を目指します。
+## アーキテクチャ設計方針
 
 ### UI とアプリケーションロジックの分離
+
 将来的に WinUI など、Blazor とは異なる UI フレームワークからもアプリケーションロジックを利用できる構成を目指します。
 
+アプリケーションの層構造は以下の通りです：
+
 ```
-UI Component
-    │
-    ├─ State
-    ├─ Action
-    └─ Validation
-          │
-          ▼
-    Application / Domain
-          │
-          ▼
-      Persistence
+┌─────────────────────────────────────────┐
+│      UI Component (Blazor)              │
+│   ・表示、ユーザー操作の受け付け        │
+└─────────────────────────────────────────┘
+            ↕ (Data Binding)
+┌─────────────────────────────────────────┐
+│      Store / State Management           │
+│   ・ビジネスロジック実行                │
+│   ・State ← → Dto 変換                │
+│   ・Validation (Store Validation)      │
+└─────────────────────────────────────────┘
+            ↕
+┌─────────────────────────────────────────┐
+│    Repository / Data Access             │
+│   ・Dto を単位とした取得・保存          │
+│   ・複数 Storage の抽象化                │
+└─────────────────────────────────────────┘
+            ↕
+┌─────────────────────────────────────────┐
+│  Storage (SQLite / File / API / etc)    │
+│   ・実際の永続化・取得                  │
+└─────────────────────────────────────────┘
 ```
 
-- **UI コンポーネント**: State と Action を受け取り、表示・操作する役割を中心
-- **ViewModel**: 必要に応じて State / Action と UI の DataBinding を仲介するアダプター
-- **アプリケーションロジック**: ViewModel に集約しない
+### State と Dto の区別
 
-### Validation
-Validation は ViewModel に集約しない方針。以下の責務を分離します。
+アプリケーションは、同じデータを異なる形式で扱います：
 
-- アプリケーション・ドメイン上の入力値が妥当かを判定する処理（UI フレームワーク非依存）
-- UI 上でいつ・どのようにエラーを表示するか（UI フレームワーク依存）
+- **State** = UI / アプリケーション側で扱う状態
+  - 永続化形式を意識しない
+  - 複数の Dto から組み立てられる場合もある
+  - クラス名の末尾は `State` で命名
+
+- **Dto** = Repository / Storage 側で永続化・取得するデータ
+  - DBのテーブルやファイル構造に対応
+  - UI フレームワークに依存しない
+  - クラス名の末尾は `Dto` で命名
+
+**例**:
+
+```
+SettingsState
+  ├─ UserSettingDto
+  ├─ ThemeSettingDto
+  └─ DisplaySettingDto
+
+Store
+  ├─ IRepository<UserSettingDto>
+  ├─ IRepository<ThemeSettingDto>
+  └─ IRepository<DisplaySettingDto>
+```
+
+Store が複数の Dto から SettingsState を構成し、State 変更時に複数の Dto へ分解して保存します。
+
+### Store の責務
+
+Store はアプリケーション機能単位での境界であり、以下の責務を持ちます：
+
+- **State 管理**: UI / アプリケーションが必要とする状態を保持・提供
+- **Action 処理**: UI からの操作 (Action) を受け取り、State を更新
+- **Store Validation**: State 更新時にビジネスルール・ドメインルールをチェック
+- **Dto ↔ State 変換**: 複数の Dto から State を構成、State から複数の Dto へ分解
+- **Repository 組み立て**: 必要な Repository を生成・保有
+
+Store は UI フレームワーク非依存ですが、Blazor など UI フレームワークから直接利用されます。
+
+### Repository の責務
+
+Repository は永続化データ (Dto) を対象としたデータアクセスを担当します：
+
+- Dto を単位とした取得・検索・件数取得
+- 条件指定・ページング範囲の指定
+- 具体的な Storage 実装を直接生成しない（Storage インターフェースを利用）
+
+Repository は Dto の型引数を持ちます：
+
+```csharp
+IRepository<UserSettingDto>
+IRepository<ThemeSettingDto>
+```
+
+Repository の設計は「利用する画面の都合」ではなく、「扱うデータ / データソースの性質」を基準とします。
+Paging や Infinite Scroll などの UI 上の利用方法を Repository へ持ち込みません。
+
+### Storage と StorageFactory の役割
+
+Storage は Repository から見た実際の保存・取得手段を抽象化します：
+
+- SQLiteOnOPFSStorage
+- FileStorage
+- RemoteStorage
+
+など、具体的な実装が考えられます。
+
+具体的な Storage 実装の生成は **StorageFactory** に集約します：
+
+```
+Store
+  ↓
+StorageFactory.Create<TDto>(...)
+  ↓
+Concrete Storage Implementation
+```
+
+Store が必要に応じて StorageFactory を呼び出し、適切な IStorage<TDto> 実装を取得します。
+
+このため、Store が具体的な Storage クラスを直接 new することはありません。
+
+### Validation の3層分離
+
+アプリケーション開発では、複数の層で Validation が必要です：
+
+#### 1. UI Validation（UI 層）
+- TextBox が空かどうか、形式が正しいか、など
+- UI フレームワーク (Blazor) に依存
+- 即座にユーザーへフィードバック（エラー表示）
+- 例: `<input @onblur="@ValidateInput" />`
+
+#### 2. Store Validation（Store 層）
+- State 更新時にビジネスルール・ドメインルールを検証
+- UI フレームワーク非依存
+- **主要な Validation はこの層で行う**
+- 例: 「ユーザーがこのリソースを編集できるか」「値の組み合わせは有効か」
+
+#### 3. Storage/Repository Validation（永続化層）
+- Dto がスキーマ要件を満たしているか
+- SQLite テーブル定義の制約 (NOT NULL、UNIQUE など)
+- Repository が Storage へ永続化する前のチェック
+- 制約違反が発生した場合は例外として Store へ報告
+
+処理フロー例：
+
+```
+UI 入力
+  ↓
+[UI Validation] 空・形式チェック
+  ↓ (OK)
+Action → Store
+  ↓
+[Store Validation] ビジネスルール確認
+  ↓ (OK)
+Dto 構成 → Repository
+  ↓
+[Storage Validation] スキーマ制約
+  ↓ (制約違反)
+Exception → Store へ通知
+  ↓
+UI へエラー表示
+```
+
+**重要なポイント**:
+
+- Store Validation で通ったデータが、Storage 制約違反で通らない場合は、**設計のミス**（Store が把握していないルールが Storage にある）です
+- この場合、UI・Store・Repository のどれが「悪い」わけではなく、設計全体の見直しが必要です
+- Storage/Repository の制約違反は、Store が受け取った例外をエラーハンドリングとして UI へ通知しますが、これは Validation ではなく「設計ギャップの顕在化」です
 
 ## データ保存方針
 
@@ -186,7 +319,7 @@ GitHub Actions 等の CI/CD 設定でビルド・公開処理を構築する際�
 チャットなどで行った設計議論についても、重要な内容は最終的にリポジトリのドキュメントへ反映します。
 
 ### 有効な設計方針の優先
-ドキュメント更新時には、現在有効な設計方針を正とします。以前の議論によって記載されている内容であっても、現在の方針と矛盾するもの、不要になったもの、無効になったものは削除・修正します。
+ドキュメント更新時には、現在有効な設計方針を正とします。以前の議論によって記載されている内容であっても、現在の方針と矛盾するもの、または廃止された方針は削除または修正します。
 
 ### 初期段階での方針
 現時点で必要性が確認されていない設計書を大量に作成しないこととします。
