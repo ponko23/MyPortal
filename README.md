@@ -4,7 +4,7 @@
 
 ## 📚 プロジェクト概要
 
-MyPortal は、**単機能・小規模**な Web アプリケーションを複数構築し、同一 Origin 上に配置しながら、各アプリは**独立してビルド・デプロイできる構成**を目指しています。
+MyPortal は、**単機能・小規模**な Web アプリケーションを複数構築し、同一 Origin 上に配置しながら、各アプリは**独立してビルド・デプロイできる**構成を目指しています。
 
 - **対象アプリ**: iPhone の Safari から PWA として利用することを想定
 - **統合方針**: 巨大なモノリシックアプリではなく、単機能アプリの集合体
@@ -54,7 +54,8 @@ MyPortal/
   - プロジェクトの目的と方針
   - 技術スタック詳細
   - リポジトリ構成の詳細説明
-  - 共通基盤の設計方針
+  - アーキテクチャ設計方針（State/Dto、Store/Repository/Storage パターン）
+  - Validation の3層分離方針
   - データ保存方針
   - ビルド・デプロイ方針
   - Issue / PR を起点とした開発フロー
@@ -63,11 +64,12 @@ MyPortal/
 ### 🔧 共通基盤のドキュメント
 - **[common/doc/README.md](common/doc/README.md)**
   - 共通基盤の目的と責務
-  - 機能分離の戦略
-  - UI とアプリケーションロジックの分離設計
-  - Validation の分離方針
-  - データ永続化の抽象化
-  - 各アプリの依存方針
+  - State と Dto の命名規則
+  - Repository / Storage / StorageFactory の設計方針
+  - Store の責務と複数 Repository の利用
+  - Validation の3層分離と実装方針
+  - データ永続化の抽象化設計
+  - 共通基盤開発時の基本原則
 
 ### 📱 個別アプリのドキュメント
 - **apps/\<app\>/doc/README.md**
@@ -88,22 +90,35 @@ MyPortal/
 
 ## 🎯 主な設計方針
 
-### 1. 機能単位での分離
-共通基盤の機能は機能ごとに分離し、必要な機能だけを依存関係に追加できる設計
-
-### 2. UI とロジックの分離
-UI フレームワーク（Blazor）に依存しないアプリケーションロジックを目指す
+### 1. 層別アーキテクチャ
+UI コンポーネント → Store → Repository → Storage という依存方向で、層ごとに責務を明確に分離します
 
 ```
-UI Component (Blazor) → State / Action / Validation → Application Logic → Persistence
+UI Component (Blazor)
+     ↕
+  Store / State
+  (ビジネスロジック・State 変換)
+     ↕
+Repository (Dto 単位のデータアクセス)
+     ↕
+Storage (SQLite / File / API / etc)
 ```
 
-### 3. ローカルファースト
+### 2. State と Dto の明確な区別
+- **State**: UI / アプリケーション側で扱う状態（永続化形式を意識しない）
+- **Dto**: Repository / Storage が扱う永続化データ（DB テーブル・ファイル構造に対応）
+- Store が複数の Dto から State を構成し、State 変更を複数の Dto へ分解して保存
+
+### 3. Repository は「データの性質」で分割
+UI の画面構成ではなく、扱うデータ・データソースの性質を基準に分割します。
+Paging や Infinite Scroll などの UI 上の利用方法は Repository レベルに持ち込みません。
+
+### 4. ローカルファースト
 - 初期段階: SQLite + OPFS でローカル保存
-- 将来的な拡張: Google Drive バックアップなどにも対応可能な設計
+- 将来的な拡張: Google Drive バックアップなどにも対応可能な抽象化設計
 
-### 4. 独立したビルド・デプロイ
-各アプリは単独でビルド・デプロイ可能な構成を目指す
+### 5. 独立したビルド・デプロイ
+各アプリは単独でビルド・デプロイ可能な構成を目指します
 
 ## 📋 開発フロー
 
@@ -133,4 +148,4 @@ UI Component (Blazor) → State / Action / Validation → Application Logic → 
 
 ---
 
-**最終更新**: 2026年8月9日 | **状態**: 初期ドキュメント完成
+**最終更新**: 2026年9月8日 | **状態**: アーキテクチャ設計確定
