@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="apps/book-memo/src/MyPortal.BookMemo.csproj" />
+  <Project Path="apps/home-stock/src/MyPortal.HomeStock.csproj" />
+  <Project Path="apps/plamo-stock/src/MyPortal.PlamoStock.csproj" />
+  <Project Path="apps/spa-host/MyPortal.SpaHost.csproj" />
+  <Project Path="common/src/MyPortal.Common.csproj" />
+</Solution>

@@ -1,0 +1,374 @@
+{
+  "goal": "読みたい本の候補と読んだ本はいつ読んだか？いつ購入または借りたか？を管理したい",
+  "cards": [
+    {
+      "id": "213257a7-0868-4981-b743-fab9e18746bf",
+      "title": "一覧画面",
+      "description": "状況を問わず自分が登録した本のタイトル一覧を表示する。\n各種状況を変更してフィルタリングやソートを実施。\n詳細画面や新規追加、一括削除機能もこの画面に追加する",
+      "type": "epic",
+      "priority": "must",
+      "columnId": "unsorted",
+      "labels": [
+        "機能"
+      ],
+      "parentId": null
+    },
+    {
+      "id": "5e9672cc-5acd-4cc5-b3f3-d5506113175c",
+      "title": "一覧の表示項目と並び順を決める",
+      "description": "タイトル一覧に表示する情報と初期の並び順を定義する。",
+      "type": "task",
+      "priority": "must",
+      "columnId": "unsorted",
+      "labels": [
+        "要件整理"
+      ],
+      "parentId": "213257a7-0868-4981-b743-fab9e18746bf"
+    },
+    {
+      "id": "77c373ed-2f11-43a3-b348-0ba2fb1ec05c",
+      "title": "状況フィルターとソート条件を決める",
+      "description": "本の状況に応じた絞り込みと並べ替えの条件を定義する。",
+      "type": "task",
+      "priority": "must",
+      "columnId": "unsorted",
+      "labels": [
+        "要件整理"
+      ],
+      "parentId": "213257a7-0868-4981-b743-fab9e18746bf"
+    },
+    {
+      "id": "9c854649-aaf2-440e-ab0c-c052f70456f8",
+      "title": "詳細・新規登録への導線を設計する",
+      "description": "一覧から詳細表示と新規登録を始める操作を設計する。",
+      "type": "task",
+      "priority": "must",
+      "columnId": "unsorted",
+      "labels": [
+        "要件整理"
+      ],
+      "parentId": "213257a7-0868-4981-b743-fab9e18746bf"
+    },
+    {
+      "id": "7a050f71-23a1-4fb6-87a0-cb909d6290f5",
+      "title": "一括削除の選択・確認方法を設計する",
+      "description": "削除対象の選択方法と誤操作を防ぐ確認方法を決める。",
+      "type": "task",
+      "priority": "must",
+      "columnId": "unsorted",
+      "labels": [
+        "要件整理"
+      ],
+      "parentId": "213257a7-0868-4981-b743-fab9e18746bf"
+    },
+    {
+      "id": "1aad65bb-8a75-41c2-adfd-cce8810a3ea6",
+      "title": "詳細画面",
+      "description": "書誌情報（本自体の情報）と個人の読書記録を分けて表示・管理する。書誌情報はISBN検索で更新されるが、所持・読書の記録は維持する。",
+      "type": "epic",
+      "priority": "must",
+      "columnId": "unsorted",
+      "labels": [
+        "機能"
+      ],
+      "parentId": null
+    },
+    {
+      "id": "64566f4e-e809-4e70-9e43-e81ca60d571c",
+      "title": "所持形態と読書状態を定義する",
+      "description": "読書状態は未読・読書中・読了とし、初期値を未読、登録後の変更は任意とする。所持状況は購入日があれば購入済み、購入日はなく借用日があれば借用記録あり・未購入、両日なければ購入候補・未所持と日付から導出する。購入候補フラグは所持状況と独立した任意値とする。",
+      "type": "task",
+      "priority": "must",
+      "columnId": "done",
+      "labels": [
+        "要件整理"
+      ],
+      "parentId": "1aad65bb-8a75-41c2-adfd-cce8810a3ea6"
+    },
+    {
+      "id": "5028301d-7962-4e80-b3a1-a0498ab2df50",
+      "title": "本の記録項目と必須条件を決める",
+      "description": "設計はspec.mdの「データモデル」「登録時の日付ルール」「登録後の更新」を参照。registeredOnは必須、borrowedOn・purchasedOnは独立したDateOnly?、購入候補フラグはbool?、一言メモ・readOnは任意、読書状態はUnread/Reading/Readとする。",
+      "type": "task",
+      "priority": "must",
+      "columnId": "done",
+      "labels": [
+        "要件整理"
+      ],
+      "parentId": "1aad65bb-8a75-41c2-adfd-cce8810a3ea6"
+    },
+    {
+      "id": "a16e6f4e-1e59-4811-b04a-9bdc28bc3d21",
+      "title": "本データの状態・日付モデルを実装する",
+      "description": "完了。BookMetadataDto・ReadingRecordDtoを分離し、BookStateで合成。registeredOn・borrowedOn・purchasedOnを独立保持し、日付から所持状況を導出する。初期登録の日付条件と読書状態の検証はBookDataRulesを参照。",
+      "type": "task",
+      "priority": "must",
+      "columnId": "done",
+      "labels": [
+        "実装",
+        "データ設計"
+      ],
+      "parentId": "1aad65bb-8a75-41c2-adfd-cce8810a3ea6"
+    },
+    {
+      "id": "56ea0a43-404d-48ae-a17e-9c7855a680f2",
+      "title": "登録状況に応じた日付入力フォームを実装する",
+      "description": "候補・借用・購入の登録方法に応じて日付欄を切り替え、登録日と該当する借用日・購入日の初期値を設定する。必須条件と入力検証はspec.mdに従う。",
+      "type": "task",
+      "priority": "must",
+      "columnId": "ready",
+      "labels": [
+        "実装",
+        "新規登録"
+      ],
+      "parentId": "1aad65bb-8a75-41c2-adfd-cce8810a3ea6"
+    },
+    {
+      "id": "5ce40e37-4f0b-44b9-8123-f3d7011011bd",
+      "title": "購入・借用日と読書状態の更新を実装・検証する",
+      "description": "借用後の購入で借用日を保持したまま購入日を追加できるようにする。読書状態変更で日付を消去せず、候補・借用・購入の各登録条件と状態導出をテストする。",
+      "type": "task",
+      "priority": "must",
+      "columnId": "ready",
+      "labels": [
+        "実装",
+        "テスト"
+      ],
+      "parentId": "1aad65bb-8a75-41c2-adfd-cce8810a3ea6"
+    },
+    {
+      "id": "f6296605-6004-4fd9-b94a-62edcc91ab4b",
+      "title": "借用・購入の履歴を保持できるデータモデルを設計する",
+      "description": "登録日・借用日・購入日を独立して保持し、候補から借用、借用から購入へ変化しても既存の日付を失わないデータモデルを設計する。未発生の日付は未入力として扱う。",
+      "type": "task",
+      "priority": "must",
+      "columnId": "ready",
+      "labels": [
+        "データ設計"
+      ],
+      "parentId": "1aad65bb-8a75-41c2-adfd-cce8810a3ea6"
+    },
+    {
+      "id": "6cf86f2b-7d4c-414a-9e98-b78e411b2542",
+      "title": "初期登録状態に応じた日付入力を設計する",
+      "description": "候補・借用・購入の登録状態に応じて借用日と購入日の入力欄を切り替え、登録時に必要な日付を必須にする。後から購入した場合は借用日を残して購入日を追加できるようにする。",
+      "type": "task",
+      "priority": "must",
+      "columnId": "ready",
+      "labels": [
+        "画面設計"
+      ],
+      "parentId": "1aad65bb-8a75-41c2-adfd-cce8810a3ea6"
+    },
+    {
+      "id": "af49552d-cd5a-44b3-a39a-65e70a68506f",
+      "title": "書誌情報と個人の読書記録の表示領域を設計する",
+      "description": "ISBN・タイトル・著者・出版社・出版日・書影などISBN検索で更新される書誌情報と、登録日・借用日・購入日・読書状態・メモなどの個人の読書記録を別のモデルと画面領域に分ける。ISBN検索結果は書誌情報だけを更新し、検索結果にない項目と個人の読書記録は維持する。詳細はspec.mdのデータモデルを参照。",
+      "type": "task",
+      "priority": "must",
+      "columnId": "done",
+      "labels": [
+        "要件整理",
+        "データ設計"
+      ],
+      "parentId": "1aad65bb-8a75-41c2-adfd-cce8810a3ea6"
+    },
+    {
+      "id": "2450fb74-befb-4559-b21d-d11f3135cb53",
+      "title": "書誌情報と個人の読書記録を別モデルで実装する",
+      "description": "完了。書誌情報をBookMetadataDto、利用者固有の登録日・借用日・購入日・読書状態・メモをReadingRecordDtoとして分離し、BookMetadataIdで関連付ける。BookMetadataLookup.Applyは書誌情報のみを返し、個人の読書記録へ触れない。",
+      "type": "task",
+      "priority": "must",
+      "columnId": "done",
+      "labels": [
+        "実装",
+        "データ設計"
+      ],
+      "parentId": "1aad65bb-8a75-41c2-adfd-cce8810a3ea6"
+    },
+    {
+      "id": "7ecb4e04-af84-4281-9e4a-818a347e5a9d",
+      "title": "ISBN検索結果を書誌情報だけに反映する",
+      "description": "ISBN検索の初回・再実行で検索結果を書誌情報領域に反映する。検索結果にない書誌項目は既存値を維持し、個人の読書記録を変更しないことを検証する。",
+      "type": "task",
+      "priority": "must",
+      "columnId": "ready",
+      "labels": [
+        "実装",
+        "ISBN"
+      ],
+      "parentId": "ec39bffd-fe2c-4995-aa76-e7cbb76a2bb4"
+    },
+    {
+      "id": "ec39bffd-fe2c-4995-aa76-e7cbb76a2bb4",
+      "title": "新規登録画面",
+      "description": "必要情報を入力して本を登録する。ISBNコードが分かれば書誌情報を検索して書誌情報欄に反映する。個人の読書記録は検索結果で上書きしない。",
+      "type": "epic",
+      "priority": "must",
+      "columnId": "unsorted",
+      "labels": [
+        "機能"
+      ],
+      "parentId": null
+    },
+    {
+      "id": "dc722dd3-eaf1-487a-8c8a-83ae2dd74152",
+      "title": "新規登録の入力項目を決める",
+      "description": "手入力する項目、必須条件、登録後の初期状態を定義する。",
+      "type": "task",
+      "priority": "must",
+      "columnId": "unsorted",
+      "labels": [
+        "要件整理"
+      ],
+      "parentId": "ec39bffd-fe2c-4995-aa76-e7cbb76a2bb4"
+    },
+    {
+      "id": "4aa89725-207d-4cdc-8530-7448797725e4",
+      "title": "ISBN検索の取得情報と代替手段を決める",
+      "description": "検索元、取得する書誌情報、検索失敗時の手入力方法を整理する。",
+      "type": "task",
+      "priority": "must",
+      "columnId": "unsorted",
+      "labels": [
+        "要件整理"
+      ],
+      "parentId": "ec39bffd-fe2c-4995-aa76-e7cbb76a2bb4"
+    },
+    {
+      "id": "732a9a8b-c323-44f9-879a-1f36633df606",
+      "title": "ISBN検索結果の確認・反映手順を設計する",
+      "description": "取得した情報を確認して登録内容へ反映する流れを設計する。",
+      "type": "task",
+      "priority": "must",
+      "columnId": "unsorted",
+      "labels": [
+        "要件整理"
+      ],
+      "parentId": "ec39bffd-fe2c-4995-aa76-e7cbb76a2bb4"
+    },
+    {
+      "id": "scenario-1",
+      "title": "本を購入して読んだ。日付と一言メモを残したい。",
+      "description": "",
+      "type": "scenario",
+      "priority": "should",
+      "columnId": "unsorted",
+      "labels": [
+        "利用場面"
+      ],
+      "parentId": null
+    },
+    {
+      "id": "scenario-2",
+      "title": "図書館で本を借りて読んだ。日付と一言メモを残したい。購入するかどうかの判断も残したい。",
+      "description": "",
+      "type": "scenario",
+      "priority": "should",
+      "columnId": "unsorted",
+      "labels": [
+        "利用場面"
+      ],
+      "parentId": null
+    },
+    {
+      "id": "scenario-3",
+      "title": "気になる本を知った。購入するかどうかを残したい。",
+      "description": "",
+      "type": "scenario",
+      "priority": "should",
+      "columnId": "unsorted",
+      "labels": [
+        "利用場面"
+      ],
+      "parentId": null
+    },
+    {
+      "id": "scenario-4",
+      "title": "本を購入したが、読まずに積んだままになっている。なぜ読まないのか？を残したい。",
+      "description": "",
+      "type": "scenario",
+      "priority": "should",
+      "columnId": "unsorted",
+      "labels": [
+        "利用場面"
+      ],
+      "parentId": null
+    },
+    {
+      "id": "decision-status",
+      "title": "「状況」「状態」の選択肢と遷移を決める",
+      "description": "読書状態を未読・読書中・読了とし、初期値は未読、登録後の変更は任意とする。所持状況は購入日ありなら購入済み、購入日なしで借用日ありなら借用記録あり・未購入、両日なしなら購入候補・未所持とする。借用返却日や複数回の借用履歴は初期リリース対象外。",
+      "type": "decision",
+      "priority": "should",
+      "columnId": "done",
+      "labels": [
+        "仕様決定"
+      ],
+      "parentId": "1aad65bb-8a75-41c2-adfd-cce8810a3ea6"
+    },
+    {
+      "id": "decision-ownership",
+      "title": "所持形態・購入判断の表現を決める",
+      "description": "所持状況は日付から導出し、登録日・借用日・購入日は独立して保持する。購入候補の登録では借用日・購入日を空欄にし、借用登録では借用日、購入登録では購入日を必須とする。借用後に購入しても借用日を保持する。購入候補フラグは所持状況と独立した任意値とする。",
+      "type": "decision",
+      "priority": "should",
+      "columnId": "done",
+      "labels": [
+        "仕様決定"
+      ],
+      "parentId": "1aad65bb-8a75-41c2-adfd-cce8810a3ea6"
+    },
+    {
+      "id": "decision-fields",
+      "title": "各情報の必須・任意と日付の扱いを決める",
+      "description": "登録時に必須とする項目、任意項目、日付を記録するタイミングを決める。",
+      "type": "decision",
+      "priority": "should",
+      "columnId": "blocked",
+      "labels": [
+        "仕様決定"
+      ],
+      "parentId": "1aad65bb-8a75-41c2-adfd-cce8810a3ea6"
+    },
+    {
+      "id": "decision-isbn",
+      "title": "ISBN検索元と検索失敗時の方法を決める",
+      "description": "ISBN検索に利用する情報源と、検索できない場合の手入力方法を決める。",
+      "type": "decision",
+      "priority": "should",
+      "columnId": "blocked",
+      "labels": [
+        "仕様決定"
+      ],
+      "parentId": "ec39bffd-fe2c-4995-aa76-e7cbb76a2bb4"
+    },
+    {
+      "id": "decision-cover",
+      "title": "書影の取得・保存方法を決める",
+      "description": "書影の取得元、保存方法、表示できない場合の扱いを決める。",
+      "type": "decision",
+      "priority": "should",
+      "columnId": "blocked",
+      "labels": [
+        "仕様決定"
+      ],
+      "parentId": "1aad65bb-8a75-41c2-adfd-cce8810a3ea6"
+    },
+    {
+      "id": "decision-bulk-delete",
+      "title": "一括削除の対象選択と誤操作防止を決める",
+      "description": "複数の本を選択して削除する操作と、誤削除を防ぐ方法を決める。",
+      "type": "decision",
+      "priority": "should",
+      "columnId": "blocked",
+      "labels": [
+        "仕様決定"
+      ],
+      "parentId": "213257a7-0868-4981-b743-fab9e18746bf"
+    }
+  ],
+  "format": "myportal-book-memo-kanban",
+  "version": 2,
+  "updatedAt": "2026-10-26T06:42:24.712Z"
+}

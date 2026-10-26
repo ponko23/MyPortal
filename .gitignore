@@ -1,0 +1,53 @@
+# .NET build output
+**/bin/
+**/obj/
+artifacts/
+publish/
+TestResults/
+
+# NuGet packages
+**/packages/
+*.nupkg
+*.snupkg
+
+# Visual Studio and IDE files
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Local launch profiles
+**/Properties/launchSettings.json
+
+# Frontend dependencies and generated output
+**/node_modules/
+**/dist/
+**/coverage/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Generated hosted app bundles
+/src/MyPortal/wwwroot/book-memo/
+/src/MyPortal/wwwroot/home-stock/
+/src/MyPortal/wwwroot/plamo-stock/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+secrets.json
+secrets.*.json
+
+# Logs and coverage
+*.log
+*.coverage
+*.coveragexml
+
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini
